@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Thời khóa biểu</title>
+  <meta charset="UTF-8" />
+  <link href="../lib/bootstrap-5.1.3-dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      min-width: 550px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="row">
+      <div class="btn-group" role="group">
+        <button type="button" class="btn btn-success m-2">TKB Lớp</button>
+        <button type="button" class="btn btn-warning m-2">TKB Giảng viên</button>
+        <button type="button" class="btn btn-danger m-2">TKB Phòng</button>
+        <button type="button" class="btn btn-primary m-2">TKB Khoa</button>
+      </div>
+    </div>
+    <div class="row">
+      <div class="mb-3 col">
+        <label class="col-form-label">Năm học:</label>
+        <select class="form-select-sm" id="cbxSchoolYear">
+        </select>
+      </div>
+      <div class="mb-3 col">
+        <label class="col-form-label">Học kỳ:</label>
+        <select class="form-select-sm" id="cbxSemester">
+          <option value="HK1">Học kỳ 1</option>
+          <option value="HK2">Học kỳ 2</option>
+          <option value="HK3">Học kỳ 3</option>
+        </select>
+      </div>
+      <div class="mb-3 col">
+        <label class="col-form-label">Tuần:</label>
+        <select class="form-select-sm" id="cbxWeek">
+        </select>
+      </div>
+    </div>
+    <div class="row">
+      <iframe
+        src="http://qlgd.dlu.edu.vn/public/DrawingClassStudentSchedules_Mau2?YearStudy=2021-2022&TermID=HK02&Week=10&ClassStudentID=AV19B2DL"
+        width="100%" height="300px">
+
+      </iframe>
+    </div>
+  </div>
+  <script src="../lib/bootstrap-5.1.3-dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../lib/jquery-3.6.0.min.js"></script>
+  <script src="../js/popup.js"></script>
+</body>
+
+</html>
