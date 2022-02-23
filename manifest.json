@@ -21,8 +21,7 @@
   },
   "permissions": [
     "scripting",
-    "storage",
-    "activeTab"
+    "storage"
   ],
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self';"
@@ -30,5 +29,8 @@
   "background": {
     "service_worker": "js/background.js"
   },
-  "options_page": "pages/options.html"
+  "options_page": "pages/options.html",
+  "host_permissions": [
+    "http://qlgd.dlu.edu.vn/*"
+  ]
 }
