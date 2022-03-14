@@ -1,11 +1,5 @@
 $(function () {
-  LoadSchoolYears();
-  LoadSemesters();
-  LoadWeeks();
-  LoadClasses();
-  LoadLecturers();
-  LoadDepartments();
-  LoadRooms();
+  LoadComboboxes('All');
 })
 
 let currentDate = new Date();
@@ -13,10 +7,44 @@ let currentYear = currentDate.getFullYear();
 let month = currentDate.getMonth();
 let selectedClassName = "active";
 
-btnClass.addEventListener('click', HandleButtonClick);
-btnLecturer.addEventListener('click', HandleButtonClick);
-btnRoom.addEventListener('click', HandleButtonClick);
-btnDepartment.addEventListener('click', HandleButtonClick);
+$('#btnClass').click(HandleButtonClick);
+$('#btnLecturer').click(HandleButtonClick);
+$('#btnRoom').click(HandleButtonClick);
+$('#btnDepartment').click(HandleButtonClick);
+$('#cbxSchoolyear').change(LoadComboboxes);
+$('#cbxSemester').change(LoadComboboxes);
+
+$('#btnClass').click();
+
+function LoadComboboxes(e) {
+  if (e === 'All') {
+    LoadSchoolYears();
+    LoadSemesters();
+    LoadClasses();
+    LoadWeeks();
+    LoadLecturers();
+    LoadDepartments();
+    LoadRooms();
+    return;
+  }
+  switch (e.target.id) {
+    case 'cbxSchoolyear':
+      LoadSemesters();
+      LoadClasses();
+      LoadWeeks();
+      LoadLecturers();
+      LoadDepartments();
+      LoadRooms();
+      break;
+    case 'cbxSemester':
+      LoadClasses();
+      LoadWeeks();
+      LoadLecturers();
+      LoadDepartments();
+      LoadRooms();
+      break;
+  }
+}
 
 function HandleButtonClick(e) {
   let current = e.target.parentElement.querySelector(
@@ -26,31 +54,43 @@ function HandleButtonClick(e) {
     current.classList.remove(selectedClassName);
     current.disabled = false;
   }
-
+  $('#btnView').unbind();
   switch (e.target.id) {
     case 'btnClass':
       $('.class').show();
       $('.lecturer').hide();
       $('.room').hide();
       $('.department').hide();
+      $('#btnView').click(function () {
+        LoadSchedule('Class');
+      });
       break;
     case 'btnLecturer':
       $('.class').hide();
       $('.lecturer').show();
       $('.room').hide();
       $('.department').hide();
+      $('#btnView').click(function () {
+        LoadSchedule('Lecturer');
+      });
       break;
     case 'btnRoom':
       $('.class').hide();
       $('.lecturer').hide();
       $('.room').show();
       $('.department').hide();
+      $('#btnView').click(function () {
+        LoadSchedule('Room');
+      });
       break;
     case 'btnDepartment':
       $('.class').hide();
       $('.lecturer').hide();
       $('.room').hide();
       $('.department').show();
+      $('#btnView').click(function () {
+        LoadSchedule('Department');
+      });
       break;
     default:
       break;
@@ -148,6 +188,41 @@ function LoadRooms() {
 }
 
 /**
+ * Show schedule
+ * @param {String} typeSchedule 
+ */
+function LoadSchedule(typeSchedule) {
+  let schoolyear = $('#cbxSchoolyear').val();
+  let semester = $('#cbxSemester').val();
+  let week = $('#cbxWeek').val();
+  let $class = $('#cbxClass').val();
+  let lecturer = $('#cbxLecturer').val();
+  let room = $('#cbxRoom').val();
+  let department = $('#cbxDepartment').val();
+  let url = '';
+  switch (typeSchedule) {
+    case 'Class':
+      url = `http://qlgd.dlu.edu.vn/public/DrawingClassStudentSchedules_Mau2?YearStudy=${schoolyear}&TermID=${semester}&Week=${week}&ClassStudentID=${$class}&t=${Math.random()}`;
+      break;
+    case 'Lecturer':
+      url = `http://qlgd.dlu.edu.vn/public/DrawingProfessorSchedule?YearStudy=${schoolyear}&TermID=${semester}&Week=${week}&ProfessorID=${lecturer}&t=${Math.random()}`;
+      break;
+    case 'Room':
+      url = `http://qlgd.dlu.edu.vn/public/DrawingRoomSchedules?YearStudy=${schoolyear}&TermID=${semester}&Week=${week}&RoomID=${room}&t=${Math.random()}`;
+      break;
+    case 'Department':
+      url = `http://qlgd.dlu.edu.vn/public/DrawingDepartmentSchedules_DangLuoi?YearStudy=${schoolyear}&TermID=${semester}&Week=${week}$${currentYear}&DepartmentID=${department}&t=${Math.random()}`;
+      break;
+    default:
+      break;
+  }
+  $('#divSchedule').html('Vui lòng chờ...');
+  $.get(url, function (html) {
+    $('#divSchedule').html(html);
+  });
+}
+
+/**
  * Get data in local storage and populate it into select tag HTML
  * @param {String} keyStorage Distrinct key to identify
  * @param {String} idSelectTagHtml ID of select tag HTML
@@ -184,6 +259,7 @@ function GetAndLoadData(keyStorage, idSelectTagHtml, itemValue, itemText) {
  */
 function SaveAndLoadData(data, keyStorage, idSelectTagHtml, itemValue, itemText) {
   let json = [];
+  let item = {};
   $(idSelectTagHtml).empty();
   $.each(data, function (index, value) {
     _val = itemValue ? value[itemValue] : value;
@@ -192,14 +268,18 @@ function SaveAndLoadData(data, keyStorage, idSelectTagHtml, itemValue, itemText)
       value: _val,
       text: _text
     }));
-    if (itemValue && itemText)
-      json.push({ itemValue: _val, itemText: _text });
+    item = {};
+    if (itemValue && itemText) {
+      item[itemValue] = _val;
+      item[itemText] = _text;
+      json.push(item);
+    }
     else
       json.push(_val);
   });
-  let content = {};
-  content[keyStorage] = json;
-  chrome.storage.local.set(content);
+  item = {};
+  item[keyStorage] = json;
+  chrome.storage.local.set(item);
 }
 
 function sort(a, b) {
