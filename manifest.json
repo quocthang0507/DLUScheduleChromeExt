@@ -19,19 +19,19 @@
     "48": "/logo/schedule_48.png",
     "128": "/logo/schedule_128.png"
   },
+  "background": {
+    "service_worker": "js/background.js"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self';"
+  },
+  "host_permissions": [
+    "http://qlgd.dlu.edu.vn/*"
+  ],
+  "options_page": "pages/options.html",
   "permissions": [
     "scripting",
     "storage",
     "unlimitedStorage"
-  ],
-  "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'self';"
-  },
-  "background": {
-    "service_worker": "js/background.js"
-  },
-  "options_page": "pages/options.html",
-  "host_permissions": [
-    "http://qlgd.dlu.edu.vn/*"
   ]
 }

@@ -20,29 +20,29 @@ function LoadComboboxes(e) {
   if (e === 'All') {
     LoadSchoolYears();
     LoadSemesters();
-    LoadClasses();
     LoadWeeks();
+    LoadWeeks(true, '#cbxWeek2', 'Week2');
+    LoadClasses();
     LoadLecturers();
     LoadDepartments();
     LoadRooms();
-    return;
   }
-  switch (e.target.id) {
-    case 'cbxSchoolyear':
-      LoadSemesters();
-      LoadClasses();
-      LoadWeeks();
-      LoadLecturers();
-      LoadDepartments();
-      LoadRooms();
-      break;
-    case 'cbxSemester':
-      LoadClasses();
-      LoadWeeks();
-      LoadLecturers();
-      LoadDepartments();
-      LoadRooms();
-      break;
+  else if (e.target.id === 'cbxSchoolyear') {
+    LoadSemesters();
+    LoadWeeks(true);
+    LoadWeeks(true, '#cbxWeek2', 'Week2');
+    LoadClasses(true);
+    LoadLecturers(true);
+    LoadDepartments(true);
+    LoadRooms(true);
+  }
+  else if (e.target.id === 'cbxSemester') {
+    LoadWeeks(true);
+    LoadWeeks(true, '#cbxWeek2', 'Week2');
+    LoadClasses(true);
+    LoadLecturers(true);
+    LoadDepartments(true);
+    LoadRooms(true);
   }
 }
 
@@ -58,9 +58,11 @@ function HandleButtonClick(e) {
   switch (e.target.id) {
     case 'btnClass':
       $('.class').show();
+      $('.week').show();
       $('.lecturer').hide();
       $('.room').hide();
       $('.department').hide();
+      $('.week2').hide();
       $('#btnView').click(function () {
         LoadSchedule('Class');
       });
@@ -68,8 +70,10 @@ function HandleButtonClick(e) {
     case 'btnLecturer':
       $('.class').hide();
       $('.lecturer').show();
+      $('.week').show();
       $('.room').hide();
       $('.department').hide();
+      $('.week2').hide();
       $('#btnView').click(function () {
         LoadSchedule('Lecturer');
       });
@@ -78,7 +82,9 @@ function HandleButtonClick(e) {
       $('.class').hide();
       $('.lecturer').hide();
       $('.room').show();
+      $('.week').show();
       $('.department').hide();
+      $('.week2').hide();
       $('#btnView').click(function () {
         LoadSchedule('Room');
       });
@@ -87,7 +93,9 @@ function HandleButtonClick(e) {
       $('.class').hide();
       $('.lecturer').hide();
       $('.room').hide();
+      $('.week').hide();
       $('.department').show();
+      $('.week2').show();
       $('#btnView').click(function () {
         LoadSchedule('Department');
       });
@@ -120,9 +128,11 @@ function LoadSemesters() {
     $('#cbxSemester').val('HK03');
 }
 
-function LoadClasses() {
-  let ok = GetAndLoadData('Classes', '#cbxClass');
-  if (!ok)
+function LoadClasses(forceUpdate = false) {
+  let result = false;
+  if (!forceUpdate)
+    result = GetAndLoadData('Classes', '#cbxClass');
+  else if (!result)
     $.get("http://qlgd.dlu.edu.vn", function (html) {
       let dom = $($.parseHTML(html));
       let options = dom.find('#ClassStudentID option').get();
@@ -144,43 +154,54 @@ function LoadClasses() {
   // });
 }
 
-function LoadWeeks() {
+function LoadWeeks(forceUpdate = false, idSelectTagHtml = '#cbxWeek', itemValue = 'Week') {
   let schoolyear = $('#cbxSchoolyear').val();
   let semester = $('#cbxSemester').val();
-  let ok = GetAndLoadData('Weeks', '#cbxWeek', 'Week', 'DisPlayWeek');
-  if (!ok)
+  let result = false;
+  if (!forceUpdate)
+    result = GetAndLoadData('Weeks', idSelectTagHtml, itemValue, 'DisPlayWeek');
+  else if (!result)
     $.getJSON('http://qlgd.dlu.edu.vn/Public/GetWeek/' + schoolyear + "$" + semester).done(function (data) {
-      SaveAndLoadData(data, 'Weeks', '#cbxWeek', 'Week', 'DisPlayWeek');
-      $('#cbxWeek').val(data[0].WeekOfYear);
+      SaveAndLoadData(data, 'Weeks', idSelectTagHtml, itemValue, 'DisPlayWeek');
+      if (itemValue === 'Week')
+        $('#cbxWeek').val(data[0].WeekOfYear);
+      else
+        $('#cbxWeek2').val(data[0].WeekOfYear2);
     });
 }
 
-function LoadLecturers() {
+function LoadLecturers(forceUpdate = false) {
   let schoolyear = $('#cbxSchoolyear').val();
   let semester = $('#cbxSemester').val();
-  let ok = GetAndLoadData('Lecturers', '#cbxLecturer', 'ProfessorID', 'ProfessorName');
-  if (!ok)
+  let result = false;
+  if (!forceUpdate)
+    result = GetAndLoadData('Lecturers', '#cbxLecturer', 'ProfessorID', 'ProfessorName');
+  else if (!result)
     $.getJSON('http://qlgd.dlu.edu.vn/Public/GetProfessorByTerm/' + schoolyear + "$" + semester).done(function (data) {
       SaveAndLoadData(data, 'Lecturers', '#cbxLecturer', 'ProfessorID', 'ProfessorName');
     });
 }
 
-function LoadDepartments() {
+function LoadDepartments(forceUpdate = false) {
   let schoolyear = $('#cbxSchoolyear').val();
   let semester = $('#cbxSemester').val();
-  let ok = GetAndLoadData('Departments', '#cbxDepartment', 'FacultyID2', 'FacultyName');
-  if (!ok)
+  let result = false;
+  if (!forceUpdate)
+    result = GetAndLoadData('Departments', '#cbxDepartment', 'FacultyID2', 'FacultyName');
+  else if (!result)
     $.getJSON('http://qlgd.dlu.edu.vn/Public/GetDepartmentIDByTerm/' + schoolyear + "$" + semester).done(function (data) {
       data.sort((a, b) => sort(a.FullName, b.FullName));
       SaveAndLoadData(data, 'Departments', '#cbxDepartment', 'FacultyID2', 'FacultyName');
     });
 }
 
-function LoadRooms() {
+function LoadRooms(forceUpdate = false) {
   let schoolyear = $('#cbxSchoolyear').val();
   let semester = $('#cbxSemester').val();
-  let ok = GetAndLoadData('Rooms', '#cbxRoom', 'RoomID', 'FullName');
-  if (!ok)
+  let result = false;
+  if (!forceUpdate)
+    result = GetAndLoadData('Rooms', '#cbxRoom', 'RoomID', 'FullName');
+  else if (!result)
     $.getJSON('http://qlgd.dlu.edu.vn/Public/GetRoomIDByTerm/' + schoolyear + "$" + semester).done(function (data) {
       data.sort((a, b) => sort(a.FullName, b.FullName));
       SaveAndLoadData(data, 'Rooms', '#cbxRoom', 'RoomID', 'FullName');
@@ -195,6 +216,7 @@ function LoadSchedule(typeSchedule) {
   let schoolyear = $('#cbxSchoolyear').val();
   let semester = $('#cbxSemester').val();
   let week = $('#cbxWeek').val();
+  let week2 = $('#cbxWeek2').val();
   let $class = $('#cbxClass').val();
   let lecturer = $('#cbxLecturer').val();
   let room = $('#cbxRoom').val();
@@ -211,7 +233,7 @@ function LoadSchedule(typeSchedule) {
       url = `http://qlgd.dlu.edu.vn/public/DrawingRoomSchedules?YearStudy=${schoolyear}&TermID=${semester}&Week=${week}&RoomID=${room}&t=${Math.random()}`;
       break;
     case 'Department':
-      url = `http://qlgd.dlu.edu.vn/public/DrawingDepartmentSchedules_DangLuoi?YearStudy=${schoolyear}&TermID=${semester}&Week=${week}$${currentYear}&DepartmentID=${department}&t=${Math.random()}`;
+      url = `http://qlgd.dlu.edu.vn/public/DrawingDepartmentSchedules_DangLuoi?YearStudy=${schoolyear}&TermID=${semester}&Week=${week2}&DepartmentID=${department}&t=${Math.random()}`;
       break;
     default:
       break;
@@ -231,10 +253,9 @@ function LoadSchedule(typeSchedule) {
  * @returns Check whether if a 'keyStorage' key existed in local storage
  */
 function GetAndLoadData(keyStorage, idSelectTagHtml, itemValue, itemText) {
-  let flag = false;
+  let flag = true;
   chrome.storage.local.get(keyStorage, function (data) {
-    flag = data && data[keyStorage] && data[keyStorage].length > 0;
-    if (flag) {
+    if (data && data[keyStorage] && data[keyStorage].length > 0) {
       $(idSelectTagHtml).empty();
       $.each(data[keyStorage], function (index, value) {
         _val = itemValue ? value[itemValue] : value;
@@ -245,6 +266,8 @@ function GetAndLoadData(keyStorage, idSelectTagHtml, itemValue, itemText) {
         }));
       });
     }
+    else
+      flag = false;
   });
   return flag;
 }
