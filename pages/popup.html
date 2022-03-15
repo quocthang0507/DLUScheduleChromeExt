@@ -9,11 +9,20 @@
     body {
       min-width: 580px;
     }
+
+    th,
+    td {
+      vertical-align: middle;
+    }
+
+    th {
+      text-align: center;
+    }
   </style>
 </head>
 
 <body>
-  <div class="container">
+  <div class="container mt-2 mb-2">
     <div class="row justify-content-md-center">
       <div class="btn-group m-2" role="group">
         <button type="button" class="btn btn-success" id="btnClass">
@@ -71,13 +80,17 @@
         </select>
       </div>
     </div>
-    <div class="row m-2">
+    <div class="row m-1">
       <div class="col text-center">
-        <button class="btn btn-primary btn-sm" type="button" id="btnView">Xem thời khóa biểu</button>
+        <button class="btn btn-success btn-sm" type="button" id="btnView">Xem thời khóa biểu</button>
       </div>
     </div>
-    <div class="row">
-      <div id="divSchedule" class="overflow-scroll">
+    <div class="row mt-4 mb-2">
+      <div id="divSchedule" style="overflow: auto;">
+        <div class="text-center" id="spinner" style="display: none;">
+          <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+          <span class="sr-only">Loading...</span>
+        </div>
       </div>
     </div>
   </div>
