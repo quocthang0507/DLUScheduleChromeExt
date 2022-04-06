@@ -4,7 +4,7 @@
 <head>
   <title>Thời khóa biểu</title>
   <meta charset="UTF-8" />
-  <link href="../lib/bootstrap-5.1.3-dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="../lib/bootstrap-5.1.3-dist/css/bootstrap.min.css" rel="stylesheet" />
   <style>
     body {
       min-width: 580px;
@@ -26,20 +26,23 @@
     <div class="row justify-content-md-center">
       <div class="btn-group m-2" role="group">
         <button type="button" class="btn btn-success" id="btnClass">
-          TKB Lớp</button>
+          TKB Lớp
+        </button>
         <button type="button" class="btn btn-warning" id="btnLecturer">
-          TKB Giảng viên</button>
+          TKB Giảng viên
+        </button>
         <button type="button" class="btn btn-danger" id="btnRoom">
-          TKB Phòng</button>
+          TKB Phòng
+        </button>
         <button type="button" class="btn btn-primary" id="btnDepartment">
-          TKB Khoa</button>
+          TKB Khoa
+        </button>
       </div>
     </div>
     <div class="row">
       <div class="col-auto">
         <label class="col-form-label">Năm học:</label>
-        <select class="form-select-sm" id="cbxSchoolyear">
-        </select>
+        <select class="form-select-sm" id="cbxSchoolyear"></select>
       </div>
       <div class="col-auto">
         <label class="col-form-label">Học kỳ:</label>
@@ -51,43 +54,42 @@
       </div>
       <div class="col-auto class">
         <label class="col-form-label">Lớp:</label>
-        <select class="form-select-sm" id="cbxClass">
-        </select>
+        <select class="form-select-sm" id="cbxClass"></select>
       </div>
-      <div class="col-auto lecturer" style="display: none;">
+      <div class="col-auto lecturer" style="display: none">
         <label class="col-form-label">Giảng viên:</label>
-        <select class="form-select-sm" id="cbxLecturer">
-        </select>
+        <select class="form-select-sm" id="cbxLecturer"></select>
       </div>
-      <div class="col-auto department" style="display: none;">
+      <div class="col-auto department" style="display: none">
         <label class="col-form-label">Khoa:</label>
-        <select class="form-select-sm" id="cbxDepartment">
-        </select>
+        <select class="form-select-sm" id="cbxDepartment"></select>
       </div>
-      <div class="col-auto room" style="display: none;">
+      <div class="col-auto room" style="display: none">
         <label class="col-form-label">Phòng:</label>
-        <select class="form-select-sm" id="cbxRoom">
-        </select>
+        <select class="form-select-sm" id="cbxRoom"></select>
       </div>
-      <div class="col-auto week2" style="display: none;">
+      <div class="col-auto week2" style="display: none">
         <label class="col-form-label">Tuần:</label>
-        <select class="form-select-sm" id="cbxWeek2">
-        </select>
+        <select class="form-select-sm" id="cbxWeek2"></select>
       </div>
       <div class="col-auto week">
         <label class="col-form-label">Tuần:</label>
-        <select class="form-select-sm" id="cbxWeek">
-        </select>
+        <select class="form-select-sm" id="cbxWeek"></select>
       </div>
     </div>
     <div class="row m-1">
       <div class="col text-center">
-        <button class="btn btn-success btn-sm" type="button" id="btnView">Xem thời khóa biểu</button>
+        <button class="btn btn-success btn-sm" type="button" id="btnView">
+          Xem thời khóa biểu
+        </button>
+        <button class="btn btn-primary btn-sm" type="button" id="btnToday">
+          Hôm nay
+        </button>
       </div>
     </div>
     <div class="row mt-4 mb-2">
-      <div id="divSchedule" style="overflow: auto;">
-        <div class="text-center" id="spinner" style="display: none;">
+      <div id="divSchedule" style="overflow: auto">
+        <div class="text-center" id="spinner" style="display: none">
           <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
           <span class="sr-only">Loading...</span>
         </div>

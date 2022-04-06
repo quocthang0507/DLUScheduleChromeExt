@@ -11,6 +11,7 @@ $('#btnClass').click(handleButtonClick);
 $('#btnLecturer').click(handleButtonClick);
 $('#btnRoom').click(handleButtonClick);
 $('#btnDepartment').click(handleButtonClick);
+$('#btnToday').click(setToday);
 $('#cbxSchoolyear').change(loadComboboxes);
 $('#cbxSemester').change(loadComboboxes);
 
@@ -31,18 +32,18 @@ function loadComboboxes(e) {
     loadSemesters();
     loadWeeks('#cbxWeek', 'Week');
     loadWeeks('#cbxWeek2', 'Week2');
-    loadClasses(true);
-    loadLecturers(true);
-    loadDepartments(true);
-    loadRooms(true);
+    loadClasses();
+    loadLecturers();
+    loadDepartments();
+    loadRooms();
   }
   else if (e.target.id === 'cbxSemester') {
     loadWeeks('#cbxWeek', 'Week');
     loadWeeks('#cbxWeek2', 'Week2');
-    loadClasses(true);
-    loadLecturers(true);
-    loadDepartments(true);
-    loadRooms(true);
+    loadClasses();
+    loadLecturers();
+    loadDepartments();
+    loadRooms();
   }
 }
 
@@ -128,16 +129,14 @@ function loadSemesters() {
     $('#cbxSemester').val('HK03');
 }
 
-function loadClasses(forceUpdate = false) {
-  let result = false;
-  if (!forceUpdate)
-    result = getAndLoadData('Classes', '#cbxClass');
-  else if (!result)
+function loadClasses() {
+  getAndLoadData('Classes', '#cbxClass');
+  if (!isPopulated('#cbxClass'))
     $.get("http://qlgd.dlu.edu.vn", function (html) {
       let dom = $($.parseHTML(html));
       let options = dom.find('#ClassStudentID option').get();
       let data = options.map(item => item.value);
-      saveAndLoadData(data, 'Classes', '#cbxClass');
+      populateData(data, 'Classes', '#cbxClass');
     });
   // Lỗi cần phải xác thực trước khi gọi
   //
@@ -158,49 +157,42 @@ function loadWeeks(idSelectTagHtml, itemValue) {
   let schoolyear = $('#cbxSchoolyear').val();
   let semester = $('#cbxSemester').val();
   $.getJSON('http://qlgd.dlu.edu.vn/Public/GetWeek/' + schoolyear + "$" + semester).done(function (data) {
-    saveAndLoadData(data, 'Weeks', idSelectTagHtml, itemValue, 'DisPlayWeek');
-    if (itemValue === 'Week')
-      $('#cbxWeek').val(data[0].WeekOfYear);
-    else
-      $('#cbxWeek2').val(data[0].WeekOfYear2);
+    populateData(data, itemValue === 'Week' ? 'Weeks' : 'Weeks2', idSelectTagHtml, itemValue, 'DisPlayWeek', false);
+    $(idSelectTagHtml).val(itemValue === 'Week' ? data[0].WeekOfYear : data[0].WeekOfYear2);
+    if ($(idSelectTagHtml).val() === null)
+      $(idSelectTagHtml).val($(`${idSelectTagHtml} option:last`).val())
   });
 }
 
-function loadLecturers(forceUpdate = false) {
+function loadLecturers() {
   let schoolyear = $('#cbxSchoolyear').val();
   let semester = $('#cbxSemester').val();
-  let result = false;
-  if (!forceUpdate)
-    result = getAndLoadData('Lecturers', '#cbxLecturer', 'ProfessorID', 'ProfessorName');
-  else if (!result)
+  getAndLoadData('Lecturers', '#cbxLecturer', 'ProfessorID', 'ProfessorName');
+  if (!isPopulated('#cbxLecturer'))
     $.getJSON('http://qlgd.dlu.edu.vn/Public/GetProfessorByTerm/' + schoolyear + "$" + semester).done(function (data) {
-      saveAndLoadData(data, 'Lecturers', '#cbxLecturer', 'ProfessorID', 'ProfessorName');
+      populateData(data, 'Lecturers', '#cbxLecturer', 'ProfessorID', 'ProfessorName');
     });
 }
 
-function loadDepartments(forceUpdate = false) {
+function loadDepartments() {
   let schoolyear = $('#cbxSchoolyear').val();
   let semester = $('#cbxSemester').val();
-  let result = false;
-  if (!forceUpdate)
-    result = getAndLoadData('Departments', '#cbxDepartment', 'FacultyID2', 'FacultyName');
-  else if (!result)
+  getAndLoadData('Departments', '#cbxDepartment', 'FacultyID2', 'FacultyName');
+  if (!isPopulated('#cbxDepartment'))
     $.getJSON('http://qlgd.dlu.edu.vn/Public/GetDepartmentIDByTerm/' + schoolyear + "$" + semester).done(function (data) {
       data.sort((a, b) => sort(a.FullName, b.FullName));
-      saveAndLoadData(data, 'Departments', '#cbxDepartment', 'FacultyID2', 'FacultyName');
+      populateData(data, 'Departments', '#cbxDepartment', 'FacultyID2', 'FacultyName');
     });
 }
 
-function loadRooms(forceUpdate = false) {
+function loadRooms() {
   let schoolyear = $('#cbxSchoolyear').val();
   let semester = $('#cbxSemester').val();
-  let result = false;
-  if (!forceUpdate)
-    result = getAndLoadData('Rooms', '#cbxRoom', 'RoomID', 'FullName');
-  else if (!result)
+  getAndLoadData('Rooms', '#cbxRoom', 'RoomID', 'FullName');
+  if (!isPopulated('#cbxRoom'))
     $.getJSON('http://qlgd.dlu.edu.vn/Public/GetRoomIDByTerm/' + schoolyear + "$" + semester).done(function (data) {
       data.sort((a, b) => sort(a.FullName, b.FullName));
-      saveAndLoadData(data, 'Rooms', '#cbxRoom', 'RoomID', 'FullName');
+      populateData(data, 'Rooms', '#cbxRoom', 'RoomID', 'FullName');
     });
 }
 
@@ -247,10 +239,8 @@ function loadSchedule(typeSchedule) {
  * @param {String} idSelectTagHtml ID of select tag HTML
  * @param {String} itemValue Name of a field in data
  * @param {String} itemText Name of a field in data
- * @returns Check whether if a 'keyStorage' key existed in local storage
  */
 function getAndLoadData(keyStorage, idSelectTagHtml, itemValue, itemText) {
-  let flag = true;
   chrome.storage.local.get(keyStorage, function (data) {
     if (data && data[keyStorage] && data[keyStorage].length > 0) {
       $(idSelectTagHtml).empty();
@@ -263,10 +253,7 @@ function getAndLoadData(keyStorage, idSelectTagHtml, itemValue, itemText) {
         }));
       });
     }
-    else
-      flag = false;
   });
-  return flag;
 }
 
 /**
@@ -277,7 +264,7 @@ function getAndLoadData(keyStorage, idSelectTagHtml, itemValue, itemText) {
  * @param {String} itemValue Name of a field in data
  * @param {String} itemText Name of a field in data
  */
-function saveAndLoadData(data, keyStorage, idSelectTagHtml, itemValue, itemText) {
+function populateData(data, keyStorage, idSelectTagHtml, itemValue, itemText, saved = true) {
   let json = [];
   let item = {};
   $(idSelectTagHtml).empty();
@@ -299,7 +286,8 @@ function saveAndLoadData(data, keyStorage, idSelectTagHtml, itemValue, itemText)
   });
   item = {};
   item[keyStorage] = json;
-  chrome.storage.local.set(item);
+  if (saved)
+    chrome.storage.local.set(item);
 }
 
 function sort(a, b) {
@@ -318,4 +306,12 @@ function transformTable(htmlTable) {
   $('table', dom).removeAttr('border');
   $('table', dom).addClass('table table-bordered table-sm border-dark table-responsive')
   return dom;
+}
+
+function isPopulated(idSelectTagHtml) {
+  return $(`${idSelectTagHtml} > option`).length > 0;
+}
+
+function setToday() {
+  loadComboboxes('All');
 }
