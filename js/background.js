@@ -8,8 +8,8 @@
 //
 // See https://developer.chrome.com/docs/extensions/reference/events/ for additional details.
 chrome.runtime.onInstalled.addListener(function () {
-  // this runs ONE TIME ONLY (unless the user reinstalls your extension)
-  console.log("The Extension is installed!");
+    // this runs ONE TIME ONLY (unless the user reinstalls your extension)
+    console.log("The Extension is installed!");
 });
 
 const dayOfWeeks = ['CN', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'];
